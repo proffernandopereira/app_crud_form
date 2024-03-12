@@ -1,5 +1,3 @@
-// src/routes.tsx
-
 import React from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,7 +5,12 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Home } from './screens/Home';
 import { Usuario } from './screens/Cadastro/Usuario';
 
-const Tab = createBottomTabNavigator();
+export type RootTabParamList = {
+    Home: undefined;
+    Usuario: { id: string };
+  };
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const MyTheme = {
   ...DefaultTheme,

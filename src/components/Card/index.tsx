@@ -18,7 +18,8 @@ type Props = {
 
 export function Card({ data, onPress }: Props) {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
-
+//console.log(data.nome)
+  
   function togglePasswordIsVisible() {
     setPasswordIsVisible(prevState => !prevState);
   }

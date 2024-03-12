@@ -10,6 +10,8 @@ import uuid from 'react-native-uuid';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import  Toast  from "react-native-tiny-toast";
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { RootTabParamList } from '../../../router';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 
 type FormDataProps = {
     id: any;
@@ -28,18 +30,18 @@ const schemaRegister = yup.object({
         .oneOf([yup.ref('senha')], 'As senhas devem coincidir'),
 })
 
-type UsuarioRouteProp = RouteProp<{ Usuario: { id: string } }, 'Usuario'>;
+type UsuarioRouteProp = BottomTabScreenProps<RootTabParamList, 'Usuario'>;
 
 type Props = {
     navigation: any
     route: UsuarioRouteProp;
 };
 
-export const Usuario =  ({navigation, route}: Props) => {
+export const Usuario = ({ route, navigation }: UsuarioRouteProp) => {
     const {control, handleSubmit, formState: {errors}} = useForm<FormDataProps>({
         resolver: yupResolver(schemaRegister) as any
     });
-
+    console.log(route.params.id);
     async function handlerRegister(data:FormDataProps){
         data.id = uuid.v4();
         //console.log(data);
@@ -48,7 +50,7 @@ export const Usuario =  ({navigation, route}: Props) => {
             //await AsyncStorage.removeItem('@hookForm:cadastro');
             const responseData = await AsyncStorage.getItem('@hookForm:cadastro');
             const dbData = responseData ? JSON.parse(responseData!) : [];
-            const previewData = [...dbData, JSON.stringify(data)]
+            const previewData = [...dbData, data]
             
             await AsyncStorage.setItem('@hookForm:cadastro', JSON.stringify(previewData));
             Toast.showSuccess('Cadastro efetuado com sucesso!')
@@ -62,17 +64,6 @@ export const Usuario =  ({navigation, route}: Props) => {
         navigation.navigate('Home');
        }
     
-
-    async function getData () {
-        try {
-          const jsonValue = await AsyncStorage.getItem('@hookForm:cadastro');
-          const data = jsonValue ? JSON.parse(jsonValue) : [];
-          console.log('Registro armazenado'+data);
-          return jsonValue 
-        } catch (e) {
-          // error reading value
-        }
-      };
     return(
         <KeyboardAwareScrollView>
         <VStack bgColor="gray.300" flex={1} px={5} pb={100} >

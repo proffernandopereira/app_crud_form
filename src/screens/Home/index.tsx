@@ -20,8 +20,8 @@ export const Home = ({navigation}:Props) => {
     const [data, setData] = useState<CardProps[]>([]);
     // Adicione uma interface para definir o tipo esperado para o parâmetro `id`
   
-  function handleEdit() {
-    navigation.navigate('Usuario', {id:''});
+  function handleEdit(id:any) {
+    navigation.navigate('Usuario', {id:id});
   }
 
   useFocusEffect (useCallback(() => {
@@ -32,7 +32,7 @@ async function handleFectchData () {
     try {
       const jsonValue = await AsyncStorage.getItem('@hookForm:cadastro');
       const data = jsonValue ? JSON.parse(jsonValue) : [];
-      console.log('Registro armazenado'+data);
+      //console.log('Registro armazenado'+data);
       setData(data);
       return jsonValue 
     } catch (e) {
@@ -51,7 +51,7 @@ async function handleFectchData () {
         renderItem={({ item }) =>
           <Card
             data={item}
-            onPress={() => handleEdit()}
+            onPress={() => handleEdit(item.id)}
           />
         }
       />
