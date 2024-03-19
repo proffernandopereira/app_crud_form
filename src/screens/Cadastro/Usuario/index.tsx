@@ -1,5 +1,5 @@
 import { Center, Heading, VStack } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Input } from '../../../components/Input';
@@ -12,6 +12,7 @@ import  Toast  from "react-native-tiny-toast";
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { RootTabParamList } from '../../../router';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
+import { ActivityIndicator } from 'react-native';
 
 type FormDataProps = {
     id: any;
@@ -38,10 +39,27 @@ type Props = {
 };
 
 export const Usuario = ({ route, navigation }: UsuarioRouteProp) => {
-    const {control, handleSubmit, formState: {errors}} = useForm<FormDataProps>({
+    const {control, handleSubmit, setValue, reset, formState: {errors}} = useForm<FormDataProps>({
+        defaultValues: {
+            nome: "",
+            email: "",
+            senha: "",
+            confirmaSenha: ""
+          },
         resolver: yupResolver(schemaRegister) as any
     });
-    console.log(route.params.id);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+
+        if (route.params && route.params.id && route.params.id.trim() !== '') {
+            handlerSearcher(route.params.id);
+        }else{
+        
+            setLoading(false);
+        }
+    }, [setLoading]);
+
     async function handlerRegister(data:FormDataProps){
         data.id = uuid.v4();
         //console.log(data);
@@ -54,90 +72,108 @@ export const Usuario = ({ route, navigation }: UsuarioRouteProp) => {
             
             await AsyncStorage.setItem('@hookForm:cadastro', JSON.stringify(previewData));
             Toast.showSuccess('Cadastro efetuado com sucesso!')
+            reset({nome: '', email: '', senha:'', confirmaSenha:'',id: ''});
             handleList();
         } catch (e) {
             console.log(e);
         }
     };
 
+    
+    async function handlerSearcher(id: any) {
+        try {
+            const responseData = await AsyncStorage.getItem('@hookForm:cadastro');
+            const dbData: FormDataProps[] = responseData ? JSON.parse(responseData) : [];
+            const itemEncontrado = dbData.find(item => item.id === id);
+
+            if (itemEncontrado) {
+                console.log('itemEncontrado:', itemEncontrado); 
+                
+                setValue('nome', itemEncontrado.nome);
+                setValue('email', itemEncontrado.email);
+                setValue('senha', itemEncontrado.senha);
+                setValue('confirmaSenha', itemEncontrado.confirmaSenha);
+                
+            } else {
+                console.log('Item não encontrado.');
+            }
+        } catch (e) {
+            console.log(e);
+        }finally {
+            setLoading(false); // Defina o estado de loading para false, indicando que a busca terminou
+        }
+    };
+
     function handleList() {
         navigation.navigate('Home');
-       }
-    
-    return(
+    }
+
+    if (loading) {
+        return (
+            <ActivityIndicator size="large" color="#0000ff" />
+        );
+    }
+    return (
+        
         <KeyboardAwareScrollView>
-        <VStack bgColor="gray.300" flex={1} px={5} pb={100} >
-            <Center>
-                <Heading my={20}>
-                Cadastro de jogadores
-            </Heading>
-            <Controller
-                control={control}
-                name="nome"
-                /*rules={{
-                    required:"Informe o nome",
-                    minLength: {
-                        value:3, 
-                        message: "É necessário informar no mínimo 3 digitos"
-                    }
-                }}*/
-                render={({field: {onChange}})=>(
-                <Input 
-                placeholder="Nome" 
-                onChangeText={onChange}
-                errorMessage= {errors.nome?.message}
-                >
-                </Input>
-            )}/>
+            <VStack bgColor="gray.300" flex={1} px={5} pb={100}>
+                <Center>
+                    <Heading my={20}>
+                        Cadastro de jogadores
+                    </Heading>
+                    <Controller
+                        control={control}
+                        name="nome"
+                        defaultValue=''
+                        render={({ field: { onChange } }) => (
+                            <Input
+                                placeholder="Nome"
+                                onChangeText={onChange}
+                                errorMessage={errors.nome?.message}
+                            />
+                        )} />
 
-            <Controller
-                control={control}
-                name="email"
-                /*rules={{
-                    required:"Informe o email",
-                    pattern:{
-                        value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/,
-                        message: "Email inválido"}
-                }}*/
-                render={({field: {onChange}})=>(
-                <Input 
-                placeholder="E-mail" 
-                onChangeText={onChange}
-                errorMessage= {errors.email?.message}
-                >
-                </Input>
-            )}/>
+                    <Controller
+                        control={control}
+                        name="email"
+                        defaultValue=''
+                        render={({ field: { onChange } }) => (
+                            <Input
+                                placeholder="E-mail"
+                                onChangeText={onChange}
+                                errorMessage={errors.email?.message}
+                            />
+                        )} />
 
-            <Controller
-                control={control}
-                name="senha"
-                render={({field: {onChange}})=>(
-                <Input 
-                placeholder="Senha" 
-                onChangeText={onChange}
-                secureTextEntry
-                errorMessage= {errors.senha?.message}
-                >
-                </Input>
-            )}/>
+                    <Controller
+                        control={control}
+                        name="senha"
+                        defaultValue=''
+                        render={({ field: { onChange } }) => (
+                            <Input
+                                placeholder="Senha"
+                                onChangeText={onChange}
+                                secureTextEntry
+                                errorMessage={errors.senha?.message}
+                            />
+                        )} />
 
-            <Controller
-                control={control}
-                name="confirmaSenha"
-                render={({field: {onChange}})=>(
-                <Input 
-                placeholder="Confirma senha" 
-                onChangeText={onChange}
-                secureTextEntry
-                errorMessage= {errors.confirmaSenha?.message}
-                >
-                </Input>
-            )}/>         
-            
-            <Button title="Cadastrar" onPress={handleSubmit(handlerRegister)}></Button>
-            </Center>
-        </VStack>
+                    <Controller
+                        control={control}
+                        name="confirmaSenha"
+                        defaultValue=''
+                        render={({ field: { onChange } }) => (
+                            <Input
+                                placeholder="Confirma senha"
+                                onChangeText={onChange}
+                                secureTextEntry
+                                errorMessage={errors.confirmaSenha?.message}
+                            />
+                        )} />
+
+                    <Button title="Cadastrar" onPress={handleSubmit(handlerRegister)}  />
+                </Center>
+            </VStack>
         </KeyboardAwareScrollView>
-    )
+    );
 };
-
