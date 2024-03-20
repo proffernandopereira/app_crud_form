@@ -7,7 +7,5 @@ export default function App() {
     <NativeBaseProvider>
       <Routes />
     </NativeBaseProvider>
-    
   );
 }
-
