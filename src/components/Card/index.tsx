@@ -19,7 +19,7 @@ type Props = {
 export function Card({ data, onPress }: Props) {
   const [passwordIsVisible, setPasswordIsVisible] = useState(false);
 //console.log(data.nome)
-  
+
   function togglePasswordIsVisible() {
     setPasswordIsVisible(prevState => !prevState);
   }
@@ -51,7 +51,7 @@ export function Card({ data, onPress }: Props) {
               </Text>
               :
               <Text style={styles.user}>
-                {data.confirmaSenha}
+                {'********'}
               </Text>
           }
         </View>

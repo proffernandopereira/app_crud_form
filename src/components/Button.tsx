@@ -2,13 +2,14 @@ import { Button as ButtonNativeBase, IButtonProps, Text } from "native-base";
 
 type Props = IButtonProps &  {
     title: string;
+    color?: string
 }
-export function Button({title, ...res}: Props){
+export function Button({title, color = "green.700", ...res}: Props){
     return(
         <ButtonNativeBase
             w="full"
             h={20}
-            bg={"green.700"}
+            bg={color}
             _pressed={{
                 bgColor:"green.900"
             }}
